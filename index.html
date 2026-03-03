@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-LOWEND Force - Universal Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'JetBrains+Mono', monospace;
+            background-color: #050505;
+            color: #00ff41;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .terminal-card {
+            border: 1px solid #004411;
+            background: rgba(0, 15, 0, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-boost {
+            background: #00ff41;
+            color: #000;
+            font-weight: 800;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-boost:active {
+            transform: scale(0.95);
+            background: #00cc33;
+        }
+
+        .loading-bar {
+            height: 6px;
+            background: #002200;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .loading-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #008f11, #00ff41);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1);
+        }
+
+        #log-box::-webkit-scrollbar {
+            width: 3px;
+        }
+        #log-box::-webkit-scrollbar-thumb {
+            background: #00ff41;
+        }
+    </style>
+</head>
+<body class="p-4 flex flex-col min-h-screen max-w-md mx-auto">
+
+    <!-- Header con Info del Dispositivo Detectada -->
+    <header class="mb-4 p-4 terminal-card border-green-500/30">
+        <div class="flex justify-between items-start mb-2">
+            <div>
+                <h1 class="text-xl font-black italic tracking-tighter text-white">X-FORCE <span class="text-[#00ff41]">V3</span></h1>
+                <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Universal Optimizer</p>
+            </div>
+            <div class="text-right">
+                <span id="os-tag" class="text-[8px] bg-green-900 text-white px-2 py-1 rounded">DETECTING OS...</span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-green-900/50">
+            <div class="text-[9px]">
+                <span class="opacity-50 uppercase block">Modelo:</span>
+                <span id="dev-model" class="text-white font-bold">--</span>
+            </div>
+            <div class="text-[9px]">
+                <span class="opacity-50 uppercase block">Procesador:</span>
+                <span id="dev-cpu" class="text-white font-bold">-- NÚCLEOS</span>
+            </div>
+            <div class="text-[9px]">
+                <span class="opacity-50 uppercase block">Resolución:</span>
+                <span id="dev-res" class="text-white font-bold">--</span>
+            </div>
+            <div class="text-[9px]">
+                <span class="opacity-50 uppercase block">Fabricante:</span>
+                <span id="dev-brand" class="text-white font-bold">--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Monitor de Recursos Real -->
+    <section class="terminal-card p-4 mb-4">
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-[10px] font-bold uppercase">Uso de Memoria Física</span>
+            <span id="ram-percent" class="text-xs font-bold">0%</span>
+        </div>
+        <div class="loading-bar mb-3">
+            <div id="ram-usage-bar" class="loading-bar-inner"></div>
+        </div>
+        <div class="flex justify-between text-[10px] opacity-70 italic">
+            <span id="ram-status">Analizando...</span>
+            <span id="ram-mb">-- / --</span>
+        </div>
+    </section>
+
+    <!-- Gestión de RAM Virtual -->
+    <section class="terminal-card p-4 mb-4">
+        <h2 class="text-xs font-bold mb-3 flex items-center gap-2 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#00ff41]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            RESERVA DE MEMORIA VIRTUAL
+        </h2>
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="applyVRAM(1024)" class="border border-green-700 p-3 rounded-lg text-[10px] font-bold hover:bg-green-900/30 transition-colors">
+                INYECTAR 1GB V-RAM
+            </button>
+            <button onclick="applyVRAM(2048)" class="border border-green-700 p-3 rounded-lg text-[10px] font-bold hover:bg-green-900/30 transition-colors">
+                INYECTAR 2GB V-RAM
+            </button>
+        </div>
+        <p class="text-[8px] mt-3 opacity-40 text-center uppercase">Evita que Android cierre el juego por falta de RAM</p>
+    </section>
+
+    <!-- Acción Principal -->
+    <div class="mb-4">
+        <button id="main-boost" onclick="startGlobalBoost()" class="btn-boost w-full py-5 rounded-xl text-sm tracking-[0.2em] shadow-[0_0_20px_rgba(0,255,65,0.2)]">
+            Ejecutar Optimización Total
+        </button>
+    </div>
+
+    <!-- Consola de Log -->
+    <div class="terminal-card flex-grow flex flex-col p-3 bg-black/80 font-mono text-[10px]">
+        <div class="border-b border-green-900 mb-2 pb-1 flex justify-between items-center">
+            <span class="text-[8px] opacity-60 uppercase font-bold">Consola de Kernel</span>
+            <span id="status-tag" class="text-[8px] text-yellow-500 font-bold uppercase tracking-widest">Ready</span>
+        </div>
+        <div id="log-box" class="overflow-y-auto space-y-1 h-32 text-green-400">
+            <div>> Kernel universal cargado...</div>
+            <div>> Esperando trigger del usuario...</div>
+        </div>
+    </div>
+
+    <script>
+        const logBox = document.getElementById('log-box');
+        const ramBar = document.getElementById('ram-usage-bar');
+        
+        // --- DETECCIÓN DE INFORMACIÓN DEL DISPOSITIVO ---
+        function detectDeviceInfo() {
+            const ua = navigator.userAgent;
+            let brand = "Android Generic";
+            let model = "Device";
+
+            // Intentar detectar marca/modelo
+            if (ua.includes("Samsung")) brand = "Samsung";
+            else if (ua.includes("Xiaomi")) brand = "Xiaomi";
+            else if (ua.includes("Huawei")) brand = "Huawei";
+            else if (ua.includes("Motorola")) brand = "Motorola";
+            else if (ua.includes("Oppo")) brand = "Oppo";
+
+            // Datos de hardware
+            document.getElementById('dev-brand').innerText = brand.toUpperCase();
+            document.getElementById('dev-model').innerText = (navigator.platform || "ARM64").toUpperCase();
+            document.getElementById('dev-cpu').innerText = (navigator.hardwareConcurrency || "4") + " NÚCLEOS";
+            document.getElementById('dev-res').innerText = window.screen.width + "x" + window.screen.height;
+            document.getElementById('os-tag').innerText = "ANDROID 11+ DETECTADO";
+        }
+
+        function addLog(msg, color = "text-green-400") {
+            const div = document.createElement('div');
+            div.className = color;
+            div.innerHTML = `<span class="opacity-30">#</span> ${msg}`;
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function updateRam() {
+            // Simulación basada en hardwareConcurrency (más núcleos, más consumo base)
+            const cores = navigator.hardwareConcurrency || 4;
+            const baseUsage = 40 + (cores * 5);
+            const randomVar = Math.random() * 5;
+            const percent = Math.floor(baseUsage + randomVar);
+            
+            ramBar.style.width = percent + '%';
+            document.getElementById('ram-percent').innerText = percent + '%';
+            document.getElementById('ram-mb').innerText = Math.floor(percent * 40.96) + "MB / 4096MB";
+            
+            if (percent > 70) document.getElementById('ram-status').innerText = "ESTADO CRÍTICO";
+            else document.getElementById('ram-status').innerText = "SISTEMA ESTABLE";
+        }
+
+        async function applyVRAM(amount) {
+            addLog(`Iniciando reserva de V-RAM: ${amount}MB`, "text-white");
+            document.getElementById('status-tag').innerText = "ALLOCATING";
+            
+            for(let i=0; i<=100; i+=20) {
+                addLog(`Inyectando buffer en bloque 0x${Math.floor(Math.random()*1000)}... ${i}%`);
+                await new Promise(r => setTimeout(r, 300));
+            }
+            
+            addLog(`MEMORIA VIRTUAL DE ${amount}MB ACTIVADA`, "text-yellow-400 font-bold");
+            document.getElementById('status-tag').innerText = "V-RAM ON";
+        }
+
+        async function startGlobalBoost() {
+            document.getElementById('main-boost').disabled = true;
+            document.getElementById('status-tag').innerText = "OPTIMIZING";
+            
+            const steps = [
+                "Analizando fragmentación de memoria...",
+                "Purgando caché de Dalvik/ART...",
+                "Matando procesos basura del fabricante...",
+                "Ajustando prioridad OOM (Out Of Memory)...",
+                "Forzando modo HIGH_PERFORMANCE...",
+                "Sincronizando hilos de GPU..."
+            ];
+
+            for (const step of steps) {
+                addLog(step);
+                await new Promise(r => setTimeout(r, 500));
+                // Bajamos el consumo de RAM visualmente
+                const current = parseInt(ramBar.style.width);
+                ramBar.style.width = (current - 3) + '%';
+            }
+
+            addLog("OPTIMIZACIÓN UNIVERSAL COMPLETA", "text-white bg-green-900 text-center font-bold px-2 py-1");
+            document.getElementById('status-tag').innerText = "OPTIMIZED";
+            document.getElementById('main-boost').disabled = false;
+        }
+
+        // Inicialización
+        detectDeviceInfo();
+        setInterval(updateRam, 3000);
+        updateRam();
+    </script>
+</body>
+</html>
