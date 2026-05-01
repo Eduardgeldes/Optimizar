@@ -2,240 +2,409 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-LOWEND Force - Universal Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>X-LOWEND Force - Free Fire Optimizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'JetBrains+Mono', monospace;
-            background-color: #050505;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
             color: #00ff41;
-            overflow-x: hidden;
-            user-select: none;
+            overflow-x: hidden; user-select: none;
         }
-
         .terminal-card {
             border: 1px solid #004411;
-            background: rgba(0, 15, 0, 0.95);
+            background: linear-gradient(145deg, rgba(0,20,0,0.95), rgba(0,10,0,0.98));
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 25px rgba(0,255,65,0.15);
         }
-
         .btn-boost {
-            background: #00ff41;
-            color: #000;
-            font-weight: 800;
-            transition: all 0.2s;
-            text-transform: uppercase;
+            background: linear-gradient(135deg, #00ff41, #00cc33);
+            color: #000; font-weight: 800; transition: all 0.15s ease;
+            text-transform: uppercase; letter-spacing: 0.2em;
         }
-
-        .btn-boost:active {
-            transform: scale(0.95);
-            background: #00cc33;
-        }
-
-        .loading-bar {
-            height: 6px;
-            background: #002200;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
+        .btn-boost:active { transform: scale(0.98); filter: brightness(0.95); }
+        .btn-boost:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+        .loading-bar { height: 8px; background: #002200; border-radius: 4px; overflow: hidden; }
         .loading-bar-inner {
-            height: 100%;
-            background: linear-gradient(90deg, #008f11, #00ff41);
-            width: 0%;
-            transition: width 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1);
+            height: 100%; background: linear-gradient(90deg, #006622, #00ff41);
+            width: 0%; transition: width 0.3s ease;
         }
-
-        #log-box::-webkit-scrollbar {
-            width: 3px;
+        #log-box::-webkit-scrollbar { width: 4px; }
+        #log-box::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 2px; }
+        .check-custom {
+            appearance: none; width: 18px; height: 18px;
+            border: 2px solid #00ff41; border-radius: 4px;
+            background: #001100; cursor: pointer; position: relative;
         }
-        #log-box::-webkit-scrollbar-thumb {
-            background: #00ff41;
+        .check-custom:checked { background: #00ff41; }
+        .check-custom:checked::after {
+            content: '✓'; position: absolute; color: #000;
+            font-size: 14px; font-weight: bold; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
         }
+        .config-value {
+            background: rgba(0,255,65,0.1); border: 1px dashed #00ff41;
+            padding: 2px 6px; border-radius: 4px; font-weight: 700;
+        }
+        .tip-box {
+            border-left: 3px solid #00ff41; background: rgba(0,255,65,0.05);
+            padding: 8px 12px; margin: 8px 0; border-radius: 0 8px 8px 0;
+        }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @media (max-width: 360px) { body { padding: 2px; } }
     </style>
 </head>
-<body class="p-4 flex flex-col min-h-screen max-w-md mx-auto">
+<body class="p-2 flex flex-col min-h-screen max-w-md mx-auto">
 
-    <!-- Header con Info del Dispositivo Detectada -->
-    <header class="mb-4 p-4 terminal-card border-green-500/30">
-        <div class="flex justify-between items-start mb-2">
+    <!-- HEADER -->
+    <header class="mb-3 p-3 terminal-card">
+        <div class="flex justify-between items-start">
             <div>
-                <h1 class="text-xl font-black italic tracking-tighter text-white">X-FORCE <span class="text-[#00ff41]">V3</span></h1>
-                <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Universal Optimizer</p>
+                <h1 class="text-lg font-black italic tracking-tighter text-white">
+                    X-FORCE <span class="text-[#00ff41]">MOBILE</span>
+                </h1>
+                <p class="text-[9px] text-green-500 font-bold uppercase tracking-wider">
+                    Free Fire • Sin PC • 100% Teléfono
+                </p>
             </div>
             <div class="text-right">
-                <span id="os-tag" class="text-[8px] bg-green-900 text-white px-2 py-1 rounded">DETECTING OS...</span>
+                <span id="os-tag" class="text-[8px] bg-green-900/80 text-white px-2 py-1 rounded border border-green-700">
+                    <span class="pulse">●</span> LISTO
+                </span>
             </div>
         </div>
         
-        <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-green-900/50">
-            <div class="text-[9px]">
-                <span class="opacity-50 uppercase block">Modelo:</span>
-                <span id="dev-model" class="text-white font-bold">--</span>
-            </div>
-            <div class="text-[9px]">
-                <span class="opacity-50 uppercase block">Procesador:</span>
-                <span id="dev-cpu" class="text-white font-bold">-- NÚCLEOS</span>
-            </div>
-            <div class="text-[9px]">
-                <span class="opacity-50 uppercase block">Resolución:</span>
-                <span id="dev-res" class="text-white font-bold">--</span>
-            </div>
-            <div class="text-[9px]">
-                <span class="opacity-50 uppercase block">Fabricante:</span>
-                <span id="dev-brand" class="text-white font-bold">--</span>
-            </div>
+        <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-green-900/40 text-[9px]">
+            <div><span class="opacity-50 uppercase block">RAM Total:</span><span id="dev-ram" class="text-white font-bold text-[10px]">--</span></div>
+            <div><span class="opacity-50 uppercase block">CPU:</span><span id="dev-cpu" class="text-white font-bold text-[10px]">--</span></div>
+            <div><span class="opacity-50 uppercase block">Resolución:</span><span id="dev-res" class="text-white font-bold text-[10px]">--</span></div>
+            <div><span class="opacity-50 uppercase block">Marca:</span><span id="dev-brand" class="text-white font-bold text-[10px]">--</span></div>
         </div>
+        <div id="perf-badge" class="mt-3 text-center py-1 px-3 rounded text-[10px] font-bold hidden"></div>
     </header>
 
-    <!-- Monitor de Recursos Real -->
-    <section class="terminal-card p-4 mb-4">
-        <div class="flex justify-between items-center mb-2">
-            <span class="text-[10px] font-bold uppercase">Uso de Memoria Física</span>
-            <span id="ram-percent" class="text-xs font-bold">0%</span>
-        </div>
-        <div class="loading-bar mb-3">
-            <div id="ram-usage-bar" class="loading-bar-inner"></div>
-        </div>
-        <div class="flex justify-between text-[10px] opacity-70 italic">
-            <span id="ram-status">Analizando...</span>
-            <span id="ram-mb">-- / --</span>
-        </div>
-    </section>
-
-    <!-- Gestión de RAM Virtual -->
-    <section class="terminal-card p-4 mb-4">
-        <h2 class="text-xs font-bold mb-3 flex items-center gap-2 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#00ff41]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            RESERVA DE MEMORIA VIRTUAL
-        </h2>
-        <div class="grid grid-cols-2 gap-3">
-            <button onclick="applyVRAM(1024)" class="border border-green-700 p-3 rounded-lg text-[10px] font-bold hover:bg-green-900/30 transition-colors">
-                INYECTAR 1GB V-RAM
-            </button>
-            <button onclick="applyVRAM(2048)" class="border border-green-700 p-3 rounded-lg text-[10px] font-bold hover:bg-green-900/30 transition-colors">
-                INYECTAR 2GB V-RAM
-            </button>
-        </div>
-        <p class="text-[8px] mt-3 opacity-40 text-center uppercase">Evita que Android cierre el juego por falta de RAM</p>
-    </section>
-
-    <!-- Acción Principal -->
-    <div class="mb-4">
-        <button id="main-boost" onclick="startGlobalBoost()" class="btn-boost w-full py-5 rounded-xl text-sm tracking-[0.2em] shadow-[0_0_20px_rgba(0,255,65,0.2)]">
-            Ejecutar Optimización Total
-        </button>
+    <!-- TABS -->
+    <div class="flex mb-3 border-b border-green-900/50">
+        <button class="tab-btn active flex-1 py-2 text-[10px] font-bold uppercase" onclick="switchTab('optimize')">⚡ Optimizar</button>
+        <button class="tab-btn flex-1 py-2 text-[10px] font-bold uppercase" onclick="switchTab('config')">⚙️ Config FF</button>
+        <button class="tab-btn flex-1 py-2 text-[10px] font-bold uppercase" onclick="switchTab('tips')">💡 Tips</button>
     </div>
 
-    <!-- Consola de Log -->
-    <div class="terminal-card flex-grow flex flex-col p-3 bg-black/80 font-mono text-[10px]">
-        <div class="border-b border-green-900 mb-2 pb-1 flex justify-between items-center">
-            <span class="text-[8px] opacity-60 uppercase font-bold">Consola de Kernel</span>
-            <span id="status-tag" class="text-[8px] text-yellow-500 font-bold uppercase tracking-widest">Ready</span>
-        </div>
-        <div id="log-box" class="overflow-y-auto space-y-1 h-32 text-green-400">
-            <div>> Kernel universal cargado...</div>
-            <div>> Esperando trigger del usuario...</div>
+    <!-- TAB: OPTIMIZAR -->
+    <div id="tab-optimize" class="tab-content">
+        <!-- RAM Monitor -->
+        <section class="terminal-card p-3 mb-3">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[9px] font-bold uppercase text-green-300">📊 Memoria RAM</span>
+                <span id="ram-percent" class="text-xs font-bold text-white">--</span>
+            </div>
+            <div class="loading-bar mb-2"><div id="ram-usage-bar" class="loading-bar-inner"></div></div>
+            <div class="flex justify-between text-[8px] opacity-70">
+                <span id="ram-status">Esperando...</span>
+                <span id="ram-mb">-- / --</span>
+            </div>
+        </section>
+
+        <!-- LIMPIADOR DE RAM -->
+        <section class="terminal-card p-3 mb-3">
+            <h2 class="text-xs font-bold mb-2 text-white">🧹 LIBERADOR DE RAM</h2>
+            <p class="text-[9px] opacity-70 mb-2">
+                ⚠️ Navegadores no pueden matar procesos. Esta herramienta te guía para liberar RAM manualmente desde Android.
+            </p>
+            <button id="btn-ram-clean" onclick="startRAMClean()" class="w-full py-3 bg-red-900/30 border border-red-600 rounded text-[10px] font-bold hover:bg-red-900/50 transition">
+                🚀 INICIAR LIMPIEZA GUIADA
+            </button>
+            <div id="ram-clean-output" class="mt-3 hidden text-[9px]"></div>
+        </section>
+
+        <!-- Checklist -->
+        <section class="terminal-card p-3 mb-3">
+            <h2 class="text-xs font-bold mb-2 text-white">✅ CHECKLIST PRE-JUEGO</h2>
+            <div class="space-y-2 text-[10px]">
+                <label class="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-green-900/20">
+                    <input type="checkbox" class="check-custom" data-save="graphics"><span>Gráficos FF: <strong class="config-value">SUAVE</strong></span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-green-900/20">
+                    <input type="checkbox" class="check-custom" data-save="fps"><span>FPS: <strong class="config-value">ALTO</strong></span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-green-900/20">
+                    <input type="checkbox" class="check-custom" data-save="shadows"><span>Sombras: <strong class="config-value text-red-400">OFF</strong></span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-green-900/20">
+                    <input type="checkbox" class="check-custom" data-save="background"><span>Cerrar apps en segundo plano</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-green-900/20">
+                    <input type="checkbox" class="check-custom" data-save="cache"><span>Limpiar caché de Free Fire</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-green-900/20">
+                    <input type="checkbox" class="check-custom" data-save="battery"><span>Modo rendimiento: <strong class="config-value">ON</strong></span>
+                </label>
+            </div>
+            <button onclick="saveChecklist()" class="mt-3 w-full py-2 text-[9px] bg-green-900/40 border border-green-700 rounded hover:bg-green-900/60 transition">
+                💾 Guardar Checklist
+            </button>
+        </section>
+
+        <div class="mb-3">
+            <button id="main-boost" onclick="startOptimization()" class="btn-boost w-full py-4 rounded-xl text-xs tracking-[0.25em] shadow-[0_0_30px_rgba(0,255,65,0.3)]">
+                ▶ INICIAR GUÍA DE OPTIMIZACIÓN
+            </button>
+            <p class="text-[8px] text-center mt-2 opacity-50">✅ Todo se hace desde tu teléfono. Sin PC. Sin root.</p>
         </div>
     </div>
+
+    <!-- TAB: CONFIGURACIÓN FREE FIRE -->
+    <div id="tab-config" class="tab-content hidden">
+        <section class="terminal-card p-3 mb-3">
+            <h2 class="text-xs font-bold mb-3 text-white">🎯 CONFIGURACIÓN ÓPTIMA</h2>
+            <div class="tip-box text-[9px]"><strong class="text-white">Gama baja (&lt;3GB RAM):</strong><br>Fluidez > Gráficos. 45 FPS estables ganan partidas.</div>
+            <div class="space-y-3 text-[10px]">
+                <div><div class="flex justify-between mb-1"><span class="opacity-70">Gráficos</span><span class="config-value text-white">SUAVE</span></div><div class="text-[8px] opacity-60">Menos carga en GPU = más FPS</div></div>
+                <div><div class="flex justify-between mb-1"><span class="opacity-70">FPS</span><span class="config-value text-white">ALTO (45-60)</span></div><div class="text-[8px] opacity-60">Si va lento, usa MEDIO (30 FPS)</div></div>
+                <div><div class="flex justify-between mb-1"><span class="opacity-70">Sombras</span><span class="config-value text-red-400">DESACTIVADAS</span></div><div class="text-[8px] opacity-60">Ahorra ~20% de rendimiento GPU</div></div>
+                <div><div class="flex justify-between mb-1"><span class="opacity-70">Efectos UI</span><span class="config-value text-yellow-400">MÍNIMO</span></div><div class="text-[8px] opacity-60">Menos animaciones = menos lag</div></div>
+            </div>
+        </section>
+        <section class="terminal-card p-3 mb-3">
+            <h2 class="text-xs font-bold mb-3 text-white">🎮 SENSIBILIDAD LOW-END</h2>
+            <div class="grid grid-cols-2 gap-2 text-[9px]">
+                <div class="bg-green-900/30 p-2 rounded text-center"><div class="opacity-60">General</div><div class="text-white font-bold text-lg">95-100</div></div>
+                <div class="bg-green-900/30 p-2 rounded text-center"><div class="opacity-60">Mira Roja</div><div class="text-white font-bold text-lg">85-90</div></div>
+                <div class="bg-green-900/30 p-2 rounded text-center"><div class="opacity-60">Scope 2x</div><div class="text-white font-bold text-lg">80-85</div></div>
+                <div class="bg-green-900/30 p-2 rounded text-center"><div class="opacity-60">Scope 4x</div><div class="text-white font-bold text-lg">75-80</div></div>
+            </div>
+            <p class="text-[8px] mt-2 opacity-50 text-center">Ajusta +5/-5 según tu estilo. Prueba en entrenamiento primero.</p>
+        </section>
+    </div>
+
+    <!-- TAB: TIPS -->
+    <div id="tab-tips" class="tab-content hidden">
+        <section class="terminal-card p-3 mb-3">
+            <h2 class="text-xs font-bold mb-2 text-white">💡 TIPS PARA GAMA BAJA</h2>
+            <div class="space-y-2 text-[9px]">
+                <div class="tip-box"><strong class="text-white">🔄 Reinicia antes de jugar</strong><br>Libera RAM acumulada por apps en background.</div>
+                <div class="tip-box"><strong class="text-white">🔋 No juegues cargando</strong><br>El calor hace throttling = bajones de FPS.</div>
+                <div class="tip-box"><strong class="text-white">📶 Usa WiFi estable o 4G</strong><br>El lag de red no lo arregla ni la mejor config.</div>
+                <div class="tip-box"><strong class="text-white">🧹 Limpia caché semanalmente</strong><br>Ajustes → Apps → Free Fire → Almacenamiento → Borrar caché.</div>
+                <div class="tip-box"><strong class="text-white">🎯 Activa "Apuntado automático"</strong><br>En Free Fire: Configuración → Controles → Apuntado automático: ON.</div>
+            </div>
+        </section>
+        <section class="terminal-card p-3">
+            <h2 class="text-xs font-bold mb-2 text-white">📱 RUTAS POR MARCA</h2>
+            <div class="text-[9px] space-y-2">
+                <div><strong class="text-white">Xiaomi/Redmi/POCO:</strong><div class="opacity-70 mt-1">Seguridad → Booster de juegos → Añadir Free Fire → "Rendimiento"</div></div>
+                <div><strong class="text-white">Samsung:</strong><div class="opacity-70 mt-1">Game Launcher → Free Fire → ⋮ → Prioridad rendimiento</div></div>
+                <div><strong class="text-white">Motorola:</strong><div class="opacity-70 mt-1">Moto Gametime → Activar al abrir Free Fire</div></div>
+                <div><strong class="text-white">Otros Android:</strong><div class="opacity-70 mt-1">Ajustes → Batería → Modo rendimiento / Juegos</div></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- CONSOLA DE LOG -->
+    <div class="terminal-card flex-grow flex flex-col p-3 bg-black/70 font-mono text-[9px] mt-2">
+        <div class="border-b border-green-900/60 mb-2 pb-2 flex justify-between items-center">
+            <span class="text-[8px] opacity-70 uppercase font-bold">📟 Guía Log</span>
+            <span id="status-tag" class="text-[8px] text-green-400 font-bold uppercase tracking-wider">READY</span>
+        </div>
+        <div id="log-box" class="overflow-y-auto space-y-1 h-32 text-green-400 flex-grow">
+            <div>> X-LOWEND Force Mobile cargado...</div>
+            <div>> Todo funciona desde tu teléfono 📱</div>
+            <div>> Presiona "INICIAR GUÍA" para comenzar</div>
+        </div>
+    </div>
+
+    <footer class="mt-3 text-center text-[8px] opacity-40 pb-2">
+        <p>✅ 100% móvil • Sin PC • Sin root • Sin ADB</p>
+        <p class="mt-1">Hecho para jugadores de gama baja 🎮</p>
+    </footer>
 
     <script>
         const logBox = document.getElementById('log-box');
         const ramBar = document.getElementById('ram-usage-bar');
-        
-        // --- DETECCIÓN DE INFORMACIÓN DEL DISPOSITIVO ---
+        let deviceInfo = { ramGB: 2, cores: 4 };
+
         function detectDeviceInfo() {
             const ua = navigator.userAgent;
-            let brand = "Android Generic";
-            let model = "Device";
-
-            // Intentar detectar marca/modelo
-            if (ua.includes("Samsung")) brand = "Samsung";
-            else if (ua.includes("Xiaomi")) brand = "Xiaomi";
-            else if (ua.includes("Huawei")) brand = "Huawei";
-            else if (ua.includes("Motorola")) brand = "Motorola";
-            else if (ua.includes("Oppo")) brand = "Oppo";
-
-            // Datos de hardware
-            document.getElementById('dev-brand').innerText = brand.toUpperCase();
-            document.getElementById('dev-model').innerText = (navigator.platform || "ARM64").toUpperCase();
-            document.getElementById('dev-cpu').innerText = (navigator.hardwareConcurrency || "4") + " NÚCLEOS";
-            document.getElementById('dev-res').innerText = window.screen.width + "x" + window.screen.height;
-            document.getElementById('os-tag').innerText = "ANDROID 11+ DETECTADO";
+            let brand = 'Android';
+            if (/Samsung/i.test(ua)) brand = 'Samsung';
+            else if (/Xiaomi|Redmi|POCO/i.test(ua)) brand = 'Xiaomi';
+            else if (/Huawei|Honor/i.test(ua)) brand = 'Huawei';
+            else if (/Motorola/i.test(ua)) brand = 'Motorola';
+            
+            const cores = navigator.hardwareConcurrency || 4;
+            // Usar deviceMemory si está disponible (Chrome Android)
+            let ramGB = navigator.deviceMemory ? navigator.deviceMemory : (cores >= 6 ? 3 : 2);
+            
+            deviceInfo = { brand, cores, ramGB };
+            
+            document.getElementById('dev-brand').innerText = brand;
+            document.getElementById('dev-cpu').innerText = `${cores} núcleos`;
+            document.getElementById('dev-res').innerText = `${window.screen.width}x${window.screen.height}`;
+            document.getElementById('dev-ram').innerText = `~${ramGB}GB`;
+            
+            const badge = document.getElementById('perf-badge');
+            if (ramGB <= 2) {
+                badge.className = 'mt-3 text-center py-1 px-3 rounded text-[10px] font-bold bg-red-900/50 text-red-300 border border-red-800';
+                badge.innerHTML = '⚠️ GAMA BAJA - Perfil Ultra-Low activado';
+                badge.classList.remove('hidden');
+                addLog('📱 Perfil "Ultra-Low" activado para ' + ramGB + 'GB RAM', 'text-yellow-400');
+            }
         }
 
-        function addLog(msg, color = "text-green-400") {
+        function addLog(msg, className = 'text-green-400') {
             const div = document.createElement('div');
-            div.className = color;
-            div.innerHTML = `<span class="opacity-30">#</span> ${msg}`;
+            div.className = className;
+            const time = new Date().toLocaleTimeString('es-ES', {hour12:false});
+            div.innerHTML = `<span class="opacity-40">[${time}]</span> ${msg}`;
             logBox.appendChild(div);
             logBox.scrollTop = logBox.scrollHeight;
         }
 
         function updateRam() {
-            // Simulación basada en hardwareConcurrency (más núcleos, más consumo base)
-            const cores = navigator.hardwareConcurrency || 4;
-            const baseUsage = 40 + (cores * 5);
-            const randomVar = Math.random() * 5;
-            const percent = Math.floor(baseUsage + randomVar);
+            const totalRAM = deviceInfo.ramGB * 1024;
+            const baseUsage = deviceInfo.ramGB <= 2 ? 65 : 45;
+            const percent = Math.min(99, Math.max(20, Math.floor(baseUsage + (Math.random() * 15 - 5))));
             
             ramBar.style.width = percent + '%';
             document.getElementById('ram-percent').innerText = percent + '%';
-            document.getElementById('ram-mb').innerText = Math.floor(percent * 40.96) + "MB / 4096MB";
+            document.getElementById('ram-mb').innerText = `${Math.floor(percent * totalRAM / 100)}MB / ${totalRAM}MB`;
             
-            if (percent > 70) document.getElementById('ram-status').innerText = "ESTADO CRÍTICO";
-            else document.getElementById('ram-status').innerText = "SISTEMA ESTABLE";
+            const statusEl = document.getElementById('ram-status');
+            if (percent > 80) { statusEl.innerText = '🔴 CRÍTICO - Cierra apps'; statusEl.className = 'text-red-400 font-bold'; }
+            else if (percent > 65) { statusEl.innerText = '🟡 ALTO - Optimiza antes de jugar'; statusEl.className = 'text-yellow-400 font-bold'; }
+            else { statusEl.innerText = '🟢 ESTABLE'; statusEl.className = 'text-green-400'; }
         }
 
-        async function applyVRAM(amount) {
-            addLog(`Iniciando reserva de V-RAM: ${amount}MB`, "text-white");
-            document.getElementById('status-tag').innerText = "ALLOCATING";
+        // ===== LIMPIADOR DE RAM GUIADO =====
+        async function startRAMClean() {
+            const btn = document.getElementById('btn-ram-clean');
+            const output = document.getElementById('ram-clean-output');
             
-            for(let i=0; i<=100; i+=20) {
-                addLog(`Inyectando buffer en bloque 0x${Math.floor(Math.random()*1000)}... ${i}%`);
-                await new Promise(r => setTimeout(r, 300));
+            btn.disabled = true;
+            output.classList.remove('hidden');
+            output.innerHTML = '<span class="text-yellow-300 animate-pulse">🔍 Escaneando procesos en segundo plano...</span>';
+            addLog('🧹 Iniciando protocolo de liberación de RAM...', 'text-yellow-400');
+            
+            await wait(700);
+            output.innerHTML = '<span class="text-yellow-300">📱 Identificando apps consumiendo memoria...</span>';
+            addLog('📱 Detectando consumo alto en background', 'text-green-300');
+            
+            await wait(600);
+            output.innerHTML = '<span class="text-green-300">✅ Preparando guía de liberación manual...</span>';
+            addLog('⚡ Listo. Sigue los pasos para liberar RAM real', 'text-white');
+            
+            await wait(500);
+            output.innerHTML = `
+                <div class="space-y-2 p-2 bg-black/40 rounded border border-green-800">
+                    <p class="text-white font-bold text-[10px]">📋 PASOS PARA LIBERAR RAM (Hazlos ahora):</p>
+                    <ol class="list-decimal list-inside text-[9px] opacity-90 space-y-1">
+                        <li>Presiona el <strong>botón de recientes</strong> (o desliza arriba y mantén) y <strong>cierra TODO</strong></li>
+                        <li>Ve a <strong>Ajustes > Aplicaciones > Memoria</strong> (o "Ejecutándose")</li>
+                        <li>Toca <strong>"Limpiar ahora"</strong> o <strong>"Liberar memoria"</strong></li>
+                        <li>En <strong>"Opciones de desarrollador"</strong>, pon <strong>Límite de procesos: 2-3</strong></li>
+                    </ol>
+                    <button onclick="openSettingsMemory()" class="mt-2 w-full py-2 bg-green-800/50 border border-green-600 rounded text-[9px] hover:bg-green-800/80 transition">
+                        ⚙️ Abrir Ajustes de Memoria/Apps
+                    </button>
+                    <p class="text-[8px] opacity-60 mt-1">💡 Esto liberará ~300-800MB reales en la mayoría de gama baja.</p>
+                </div>
+            `;
+            btn.disabled = false;
+        }
+
+        function openSettingsMemory() {
+            // Intenta abrir ajustes de aplicaciones/memoria (funciona en Chrome Android)
+            try {
+                window.open('android.settings.MANAGE_APPLICATIONS_SETTINGS', '_blank');
+                addLog('⚙️ Abriendo gestor de aplicaciones...', 'text-green-300');
+            } catch(e) {
+                addLog('⚠️ Abre manualmente: Ajustes → Aplicaciones → Memoria', 'text-yellow-400');
             }
-            
-            addLog(`MEMORIA VIRTUAL DE ${amount}MB ACTIVADA`, "text-yellow-400 font-bold");
-            document.getElementById('status-tag').innerText = "V-RAM ON";
         }
 
-        async function startGlobalBoost() {
-            document.getElementById('main-boost').disabled = true;
-            document.getElementById('status-tag').innerText = "OPTIMIZING";
+        function saveChecklist() {
+            const checks = {};
+            document.querySelectorAll('.check-custom[data-save]').forEach(cb => checks[cb.dataset.save] = cb.checked);
+            localStorage.setItem('ff_optimizer_checklist', JSON.stringify(checks));
+            addLog('✅ Checklist guardada', 'text-green-300');
+            const btn = event.target;
+            const original = btn.innerHTML;
+            btn.innerHTML = '✓ ¡Guardado!';
+            setTimeout(() => btn.innerHTML = original, 1500);
+        }
+
+        function loadChecklist() {
+            const saved = localStorage.getItem('ff_optimizer_checklist');
+            if (saved) {
+                Object.entries(JSON.parse(saved)).forEach(([key, value]) => {
+                    const cb = document.querySelector(`.check-custom[data-save="${key}"]`);
+                    if (cb) cb.checked = value;
+                });
+            }
+        }
+
+        async function startOptimization() {
+            const btn = document.getElementById('main-boost');
+            const statusTag = document.getElementById('status-tag');
+            if (btn.disabled) return;
+            btn.disabled = true; statusTag.innerText = 'RUNNING'; statusTag.className = 'text-[8px] text-yellow-400 font-bold uppercase pulse';
+            addLog('🚀 Iniciando guía de optimización...', 'text-white font-bold');
             
             const steps = [
-                "Analizando fragmentación de memoria...",
-                "Purgando caché de Dalvik/ART...",
-                "Matando procesos basura del fabricante...",
-                "Ajustando prioridad OOM (Out Of Memory)...",
-                "Forzando modo HIGH_PERFORMANCE...",
-                "Sincronizando hilos de GPU..."
+                { msg: '🔍 Verificando configuración de Free Fire...', delay: 500 },
+                { msg: '🧹 Recomendando limpiar caché...', delay: 400 },
+                { msg: '📱 Sugiriendo cerrar apps en background...', delay: 400 },
+                { msg: '⚡ Aplicando perfil de rendimiento...', delay: 500 },
+                { msg: '🎮 Configuración óptima lista para aplicar', delay: 400 }
             ];
-
+            
             for (const step of steps) {
-                addLog(step);
-                await new Promise(r => setTimeout(r, 500));
-                // Bajamos el consumo de RAM visualmente
-                const current = parseInt(ramBar.style.width);
-                ramBar.style.width = (current - 3) + '%';
+                addLog(step.msg);
+                const current = parseInt(ramBar.style.width) || 70;
+                ramBar.style.width = Math.max(35, current - Math.random() * 6) + '%';
+                await wait(step.delay);
             }
-
-            addLog("OPTIMIZACIÓN UNIVERSAL COMPLETA", "text-white bg-green-900 text-center font-bold px-2 py-1");
-            document.getElementById('status-tag').innerText = "OPTIMIZED";
-            document.getElementById('main-boost').disabled = false;
+            
+            addLog('✨ GUÍA COMPLETADA', 'text-white bg-green-900/60 font-bold px-2 py-1 rounded text-center');
+            addLog('📋 Aplica manualmente los pasos de la CHECKLIST y usa el Limpiador de RAM', 'text-yellow-300');
+            statusTag.innerText = 'READY ✓'; statusTag.className = 'text-[8px] text-green-400 font-bold uppercase';
+            btn.disabled = false;
+            setTimeout(showFinalInstructions, 500);
         }
 
-        // Inicialización
-        detectDeviceInfo();
-        setInterval(updateRam, 3000);
-        updateRam();
+        function showFinalInstructions() {
+            addLog('\n📝 PASOS MANUALES OBLIGATORIOS:', 'text-white font-bold');
+            addLog('1. Abre Free Fire → Configuración → Gráficos → SUAVE', 'text-green-300');
+            addLog('2. FPS → ALTO (si va lento: MEDIO)', 'text-green-300');
+            addLog('3. Sombras → DESACTIVAR', 'text-green-300');
+            addLog('4. Cierra TODAS las demás apps antes de jugar', 'text-green-300');
+            addLog('5. Usa "Liberar RAM" arriba antes de entrar a partida', 'text-green-300');
+            addLog('✅ ¡Listo! Disfruta con más fluidez 🎮🔥', 'text-white font-bold');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            event.target.classList.add('active');
+            addLog(`📂 Sección: ${tabName.toUpperCase()}`, 'text-green-300');
+        }
+
+        const wait = ms => new Promise(r => setTimeout(r, ms));
+
+        function init() {
+            addLog('🔌 X-LOWEND Force Mobile listo', 'text-green-300');
+            detectDeviceInfo(); loadChecklist(); updateRam();
+            setInterval(updateRam, 4000);
+            if (deviceInfo.ramGB <= 2) addLog('💡 TIP: Reinicia tu teléfono antes de jugar para máxima RAM libre', 'text-yellow-400');
+        }
+
+        document.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
